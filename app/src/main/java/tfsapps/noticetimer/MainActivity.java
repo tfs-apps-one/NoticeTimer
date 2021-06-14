@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     final long MIN_10 = 600000;
     final long MIN_1 = 60000;
     final long SEC_10 = 10000;
+    final long SEC_1 = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +115,21 @@ public class MainActivity extends AppCompatActivity {
         if (isActive == false){
             countNumber += SEC_10;
         }
+    }
+    // +1sec
+    public void on1sec(View view){
+        if (isActive == false){
+            countNumber += SEC_1;
+        }
+    }
+    // alarm
+    public void onAlarm(View view){
+    }
+    // light
+    public void onLight(View view){
+    }
+    // Vaib
+    public void onVaib(View view){
     }
 
     class CountDown extends CountDownTimer {
