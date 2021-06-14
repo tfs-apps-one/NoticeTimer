@@ -17,68 +17,160 @@
         android:layout_marginBottom="24dp"
         android:textColor="#00f"
         android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_start"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="185dp" />
-
-    <Button
-        android:id="@+id/btn_start"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_margin="10dp"
-        android:layout_marginBottom="50dp"
-        android:layout_marginTop="50dp"
-        android:onClick="onStart"
-        android:text="START"
-        app:layout_constraintBottom_toTopOf="@+id/btn_clear"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentStart="true"
+        app:layout_constraintTop_toBottomOf="@+id/timer"
+        android:layout_marginBottom="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_10min"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:onClick="on10min"
+            android:text="+10\nmin" />
+
+
+        <Button
+            android:id="@+id/btn_1min"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:onClick="on1min"
+            android:text="+1\nmin" />
+
+        <Button
+            android:id="@+id/btn_10sec"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:onClick="on10sec"
+            android:text="+10\nsec" />
+
+        <Button
+            android:id="@+id/btn_1sec"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:onClick="on1sec"
+            android:text="+1\nsec" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentStart="true"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginBottom="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="5dp"
+        android:onClick="onStart"
+        android:text="START" />
+
     <Button
         android:id="@+id/btn_clear"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_margin="10dp"
-        android:layout_marginTop="50dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="5dp"
         android:onClick="onClear"
-        android:text="CLEAR"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_start" />
+        android:text="CLEAR" />
 
-    <Button
-        android:id="@+id/btn_10min"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="28dp"
-        android:onClick="on10min"
-        android:text="+10 min"
-        app:layout_constraintTop_toBottomOf="@+id/btn_clear"
-        tools:layout_editor_absoluteX="16dp" />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_1min"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="28dp"
-        android:onClick="on1min"
-        android:text="+1 min"
-        app:layout_constraintEnd_toStartOf="@+id/btn_10sec"
-        app:layout_constraintHorizontal_bias="0.885"
-        app:layout_constraintStart_toEndOf="@+id/btn_10min"
-        app:layout_constraintTop_toBottomOf="@+id/btn_clear" />
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout1"
+        android:layout_marginBottom="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btn_10sec"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:onClick="on10sec"
-        android:text="+10 sec"
-        app:layout_constraintTop_toBottomOf="@+id/btn_clear"
-        tools:layout_editor_absoluteX="261dp" />
+        <ImageButton
+            android:id="@+id/btn_img_alarm"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:onClick="onAlarm"
+            android:src="@drawable/alarm_1" />
+
+        <ImageButton
+            android:id="@+id/btn_img_light"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:onClick="onLight"
+            android:src="@drawable/light_1" />
+
+        <ImageButton
+            android:id="@+id/btn_img_vaib"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:onClick="onVaib"
+            android:src="@drawable/vaib_1" />
+
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
