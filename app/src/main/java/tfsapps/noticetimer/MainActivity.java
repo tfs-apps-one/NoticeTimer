@@ -9,6 +9,7 @@ import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -43,12 +44,15 @@ public class MainActivity extends AppCompatActivity {
     private String mCameraId = null;
     static boolean islightON = false;
     static long countNumber = 0;
-    private boolean isActive = false;
+    private boolean isActive = false;           //タイマーカウント中か否か　true=動作中、false=停止中
     final long INTERVAL = 10;
     final long MIN_10 = 600000;
     final long MIN_1 = 60000;
     final long SEC_10 = 10000;
     final long SEC_1 = 1000;
+    private boolean is_set_alarm = true;        //アラーム設定
+    private boolean is_set_light = false;       //ライト設定
+    private boolean is_set_vaib = false;        //バイブ設定
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +66,6 @@ public class MainActivity extends AppCompatActivity {
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         alarm = MediaPlayer.create(this, R.raw.alarm);
 
-        // タイマー関連（インスタンス生成）
-        countDown = new CountDown(countNumber, INTERVAL);
-
         //カメラ初期化
         mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         mCameraManager.registerTorchCallback(new CameraManager.TorchCallback() {
@@ -75,6 +76,33 @@ public class MainActivity extends AppCompatActivity {
             }
         }, new android.os.Handler());
     }
+    /*
+        画面描画処理
+     */
+    public void DisplayScreen() {
+
+        if (isActive == true){
+            /* タイマー動作中は画面更新しない */
+            return;
+        }
+        /* タイマー */
+        timerText = findViewById(R.id.timer);
+        timerText.setText(dataFormat.format(countNumber));
+
+        /* イメージボタンの表示 */
+        ImageButton i_btn1 = (ImageButton) findViewById(R.id.btn_img_alarm);
+        if (is_set_alarm == true)   i_btn1.setImageResource(R.drawable.alarm_1);
+        else                        i_btn1.setImageResource(R.drawable.alarm_0);
+
+        ImageButton i_btn2 = (ImageButton) findViewById(R.id.btn_img_light);
+        if (is_set_light == true)   i_btn2.setImageResource(R.drawable.light_1);
+        else                        i_btn2.setImageResource(R.drawable.light_0);
+
+        ImageButton i_btn3 = (ImageButton) findViewById(R.id.btn_img_vaib);
+        if (is_set_vaib == true)    i_btn3.setImageResource(R.drawable.vaib_1);
+        else                        i_btn3.setImageResource(R.drawable.vaib_0);
+
+    }
 
     /*
         ボタン各処理
@@ -83,53 +111,100 @@ public class MainActivity extends AppCompatActivity {
     public void onStart(View view) throws InterruptedException {
         if (isActive == false ) {
             if (countNumber > 0) {
+                if (countDown != null){
+                    countDown.cancel();
+                    countDown = null;
+                }
+                // タイマー関連（インスタンス生成）
+                countDown = new CountDown(countNumber, INTERVAL);
                 countDown.start();
                 isActive = true;
             }
-        }else{
-            isActive = false;
-            countDown.onPause1();
+        }
+        else{
+            //エラー表示が親切
         }
     }
     // クリア
     public void onClear(View view){
+        if (isActive == true){
+            DeviceOff();
+        }
+        countNumber = 0;
         countDown.cancel();
         isActive = false;
         timerText.setText(dataFormat.format(0));
-        DeviceOff();
     }
     // +10min
     public void on10min(View view){
         if (isActive == false){
             countNumber += MIN_10;
+            DisplayScreen();
+        }
+        else{
+            //エラー表示が親切
         }
     }
     // +1min
     public void on1min(View view){
         if (isActive == false){
             countNumber += MIN_1;
+            DisplayScreen();
         }
+        else{
+            //エラー表示が親切
+        }
+
     }
     // +10sec
     public void on10sec(View view){
         if (isActive == false){
             countNumber += SEC_10;
+            DisplayScreen();
+        }
+        else{
+            //エラー表示が親切
         }
     }
     // +1sec
     public void on1sec(View view){
         if (isActive == false){
             countNumber += SEC_1;
+            DisplayScreen();
+        }
+        else{
+            //エラー表示が親切
         }
     }
-    // alarm
+    // alarm 設定
     public void onAlarm(View view){
+        if (isActive == false) {
+            is_set_alarm = (!is_set_alarm);
+            DisplayScreen();
+        }
+        else{
+            //エラー表示が親切
+        }
     }
-    // light
+    // light 設定
     public void onLight(View view){
+        if (isActive == false) {
+            is_set_light = (!is_set_light);
+            DisplayScreen();
+        }
+        else{
+            //エラー表示が親切
+        }
     }
-    // Vaib
+    // Vaib 設定
     public void onVaib(View view){
+        if (isActive == false) {
+            is_set_vaib = (!is_set_vaib);
+            DisplayScreen();
+        }
+        else{
+            //エラー表示が親切
+        }
     }
 
     class CountDown extends CountDownTimer {
@@ -193,13 +268,19 @@ public class MainActivity extends AppCompatActivity {
     public void DeviceOn()
     {
         //アラーム
-        alarm.setLooping(true);
-        alarm.start();
+        if (is_set_alarm == true) {
+            alarm.setLooping(true);
+            alarm.start();
+        }
         //バイブレーション
-        long vibratePattern[] = {300,1000,300,1000};/* OFF→ON→OFF→ON*/
-        vibrator.vibrate(vibratePattern,1);
+        if (is_set_vaib) {
+            long vibratePattern[] = {300, 1000, 300, 1000};/* OFF→ON→OFF→ON*/
+            vibrator.vibrate(vibratePattern, 1);
+        }
         //ライト
-        lightControl();
+        if (is_set_light == true) {
+            lightControl();
+        }
     }
     //OFF処理　ライト・バイブレーション・音
     public void DeviceOff()
