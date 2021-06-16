@@ -75,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
                 mCameraId = cameraId;
             }
         }, new android.os.Handler());
+
+        //画面初期化
+        DisplayScreen();
     }
     /*
         画面描画処理
@@ -243,17 +246,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //ライトの制御
-    public void lightControl()
+    public void lightControl(boolean isOn)
     {
         boolean _flag = false;
         //カメラ正常認識できていない場合
         if(mCameraId == null){
             return;
         }
-        if (islightON == false){
-            _flag = true;
-        }else{
+        if (isOn == false){
             _flag = false;
+        }else{
+            _flag = true;
         }
         try {
             mCameraManager.setTorchMode(mCameraId, _flag);
@@ -279,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
         }
         //ライト
         if (is_set_light == true) {
-            lightControl();
+            lightControl(true);
         }
     }
     //OFF処理　ライト・バイブレーション・音
@@ -290,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         //バイブレーション
         vibrator.cancel();
         //ライト
-        lightControl();
+        lightControl(false);
     }
 
 }
