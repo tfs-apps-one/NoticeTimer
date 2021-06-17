@@ -2,6 +2,7 @@ package tfsapps.noticetimer;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
+import android.media.AudioManager;
 import android.os.Bundle;
 
 //タイマー関連
@@ -10,6 +11,7 @@ import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -54,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean is_set_light = false;       //ライト設定
     private boolean is_set_vaib = false;        //バイブ設定
 
+    private int now_volume;                     //現在の音量値
+    private SeekBar seek_volume;                //SeekBar
+    private AudioManager am;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,14 +82,59 @@ public class MainActivity extends AppCompatActivity {
             }
         }, new android.os.Handler());
 
+        /*音*/
+        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        now_volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        /* SeekBar */
+        seek_volume = (SeekBar)findViewById(R.id.seekBar);
+        seek_volume.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    //ツマミをドラッグした時
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                        now_volume = seekBar.getProgress();
+                        am.setStreamVolume(AudioManager.STREAM_MUSIC, now_volume, 0);
+                        DisplayScreen();
+                    }
+                    //ツマミに触れた時
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                        if (is_set_alarm == false)  return;
+                    }
+                    //ツマミを離した時
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        if (is_set_alarm == false)  return;
+                    }
+                }
+        );
+
+    }
+    /*
+        スタート処理
+     */
+    @Override
+    public void onStart() {
+        super.onStart();
+
         //画面初期化
         DisplayScreen();
     }
+
     /*
         画面描画処理
      */
     public void DisplayScreen() {
 
+        /* 音量 */
+        TextView t_volume = (TextView)findViewById(R.id.text_volume);
+        t_volume.setText(""+now_volume);
+        if (is_set_alarm == true)   seek_volume.setBackgroundColor(0xFFBBDDFC);
+        else                        seek_volume.setBackgroundColor(0xFFEDEDED);
+        seek_volume.setProgress(now_volume);
+
+        //以下は、タイマー動作中は表示更新しない
         if (isActive == true){
             /* タイマー動作中は画面更新しない */
             return;
@@ -104,7 +155,6 @@ public class MainActivity extends AppCompatActivity {
         ImageButton i_btn3 = (ImageButton) findViewById(R.id.btn_img_vaib);
         if (is_set_vaib == true)    i_btn3.setImageResource(R.drawable.vaib_1);
         else                        i_btn3.setImageResource(R.drawable.vaib_0);
-
     }
 
     /*
@@ -210,6 +260,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+        SeekBar処理
+     */
+
+
+
+    /*
+        カウントダウン処理
+     */
     class CountDown extends CountDownTimer {
         private long nowcount;
 
