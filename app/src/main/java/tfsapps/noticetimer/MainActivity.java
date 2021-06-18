@@ -21,17 +21,6 @@ import android.media.MediaPlayer;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 
-//スレッド
-//タイマースレッド
-
-/*
-* □　UIの整備（ライト、バイブレーション、音）
-* □　時間の設定（分、秒）
-* □　一時停止停止の処理
-* □　アイコン作成
-* □　
-* */
-
 public class MainActivity extends AppCompatActivity {
     //カウントダウン
     private CountDown countDown;
@@ -57,13 +46,27 @@ public class MainActivity extends AppCompatActivity {
     private boolean is_set_vaib = false;        //バイブ設定
 
     private int now_volume;                     //現在の音量値
+    private int init_volume;                    //アプリ起動時の音量値
     private SeekBar seek_volume;                //SeekBar
     private AudioManager am;
+    private long now_countNumber = 0;           //現在のタイマー値（カウントダウン中の値）
+    private boolean isPause = false;            //タイマー一時停止
+
+    //  国設定
+    private Locale _local;
+    private String _language;
+    private String _country;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //  国設定
+        _local = Locale.getDefault();
+        _language = _local.getLanguage();
+        _country = _local.getCountry();
+
         /* 初期化処理 */
         Button startButton = findViewById(R.id.btn_start);
         Button stopButton = findViewById(R.id.btn_clear);
@@ -112,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
     /*
-        スタート処理
+        アプリスタート処理
      */
     @Override
     public void onStart() {
@@ -121,11 +124,31 @@ public class MainActivity extends AppCompatActivity {
         //画面初期化
         DisplayScreen();
     }
+    /*
+        アプリ終了処理
+     */
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        //カメラ
+        if (mCameraManager != null)
+        {
+            mCameraManager = null;
+        }
+        /* 音量の戻しの処理 */
+        if (am != null){
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, init_volume, 0);
+            am = null;
+        }
+    }
 
     /*
         画面描画処理
      */
     public void DisplayScreen() {
+
+        Button btn_start = (Button)findViewById(R.id.btn_start);
+        Button btn_clear = (Button)findViewById(R.id.btn_clear);
 
         /* 音量 */
         TextView t_volume = (TextView)findViewById(R.id.text_volume);
@@ -136,25 +159,36 @@ public class MainActivity extends AppCompatActivity {
 
         //以下は、タイマー動作中は表示更新しない
         if (isActive == true){
-            /* タイマー動作中は画面更新しない */
-            return;
+            if (isPause == true){
+                btn_start.setText(R.string.btn_STOP);
+            }else{
+                btn_start.setText(R.string.btn_START);
+            }
+            btn_start.setTextColor(getColor(R.color.material_on_background_disabled));
+            btn_clear.setTextColor(getColor(R.color.design_default_color_error));
         }
-        /* タイマー */
-        timerText = findViewById(R.id.timer);
-        timerText.setText(dataFormat.format(countNumber));
+        else{
+            btn_start.setText(R.string.btn_START);
+            btn_start.setTextColor(getColor(R.color.design_default_color_primary_variant));
+            btn_clear.setTextColor(getColor(R.color.design_default_color_error));
 
-        /* イメージボタンの表示 */
-        ImageButton i_btn1 = (ImageButton) findViewById(R.id.btn_img_alarm);
-        if (is_set_alarm == true)   i_btn1.setImageResource(R.drawable.alarm_1);
-        else                        i_btn1.setImageResource(R.drawable.alarm_0);
+            /* タイマー */
+            timerText = findViewById(R.id.timer);
+            timerText.setText(dataFormat.format(countNumber));
 
-        ImageButton i_btn2 = (ImageButton) findViewById(R.id.btn_img_light);
-        if (is_set_light == true)   i_btn2.setImageResource(R.drawable.light_1);
-        else                        i_btn2.setImageResource(R.drawable.light_0);
+            /* イメージボタンの表示 */
+            ImageButton i_btn1 = (ImageButton) findViewById(R.id.btn_img_alarm);
+            if (is_set_alarm == true)   i_btn1.setImageResource(R.drawable.alarm_1);
+            else                        i_btn1.setImageResource(R.drawable.alarm_0);
 
-        ImageButton i_btn3 = (ImageButton) findViewById(R.id.btn_img_vaib);
-        if (is_set_vaib == true)    i_btn3.setImageResource(R.drawable.vaib_1);
-        else                        i_btn3.setImageResource(R.drawable.vaib_0);
+            ImageButton i_btn2 = (ImageButton) findViewById(R.id.btn_img_light);
+            if (is_set_light == true)   i_btn2.setImageResource(R.drawable.light_1);
+            else                        i_btn2.setImageResource(R.drawable.light_0);
+
+            ImageButton i_btn3 = (ImageButton) findViewById(R.id.btn_img_vaib);
+            if (is_set_vaib == true)    i_btn3.setImageResource(R.drawable.vaib_1);
+            else                        i_btn3.setImageResource(R.drawable.vaib_0);
+        }
     }
 
     /*
@@ -172,9 +206,32 @@ public class MainActivity extends AppCompatActivity {
                 countDown = new CountDown(countNumber, INTERVAL);
                 countDown.start();
                 isActive = true;
+                isPause = false;
             }
+            DisplayScreen();
         }
         else{
+            /* タイマー途中 */
+            if (now_countNumber > 0){
+                if (isPause == true) {
+                    if (countDown != null){
+                        countDown.cancel();
+                        countDown = null;
+                    }
+                    countNumber = now_countNumber;
+                    countDown = new CountDown(countNumber, INTERVAL);
+                    countDown.start();
+                    isActive = true;
+                    isPause = false;
+                }
+                else{
+                    if (countDown != null){
+                        countDown.cancel();
+                    }
+                    isPause = true;
+                }
+                DisplayScreen();
+            }
             //エラー表示が親切
         }
     }
@@ -184,9 +241,13 @@ public class MainActivity extends AppCompatActivity {
             DeviceOff();
         }
         countNumber = 0;
-        countDown.cancel();
+        if (countDown != null){
+            countDown.cancel();
+        }
         isActive = false;
+        isPause = false;
         timerText.setText(dataFormat.format(0));
+        DisplayScreen();
     }
     // +10min
     public void on10min(View view){
@@ -281,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
             // 完了
             //テキスト
             timerText.setText(dataFormat.format(0));
+            now_countNumber = 0;
             DeviceOn();
         }
         public void onPause1(){
@@ -295,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
         // インターバルで呼ばれる
         @Override
         public void onTick(long millisUntilFinished) {
+            now_countNumber = millisUntilFinished;
             // 残り時間を分、秒、ミリ秒に分割
             long mm = millisUntilFinished / 1000 / 60;
             long ss = millisUntilFinished / 1000 % 60;
