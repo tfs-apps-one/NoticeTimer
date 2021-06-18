@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">通知タイマー</string>
+    <string name="btn_10MIN">+10\n分</string>
+    <string name="btn_1MIN">+1\n分</string>
+    <string name="btn_10SEC">+10\n秒</string>
+    <string name="btn_1SEC">+1\n秒</string>
+    <string name="btn_START">開始</string>
+    <string name="btn_STOP">停止</string>
+    <string name="btn_CLEAR">クリア</string>
+    <string name="COMMENT">カウントダウン中はアプリ画面を閉じないで下さい</string>
+</resources>
