@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">NoticeTimer</string>
-    <string name="btn_10MIN">+10MIN</string>
-    <string name="btn_1MIN">+1 MIN</string>
-    <string name="btn_10SEC">+10SEC</string>
-    <string name="btn_1SEC">+1 SEC</string>
+    <string name="btn_10MIN">"+10\nmin"</string>
+    <string name="btn_1MIN">"+1\nmin"</string>
+    <string name="btn_10SEC">+10\nsec</string>
+    <string name="btn_1SEC">+1\nsec</string>
     <string name="btn_START">START</string>
     <string name="btn_STOP">STOP</string>
     <string name="btn_CLEAR">CLEAR</string>
