@@ -248,6 +248,7 @@
         android:text="@string/COMMENT"
         android:textStyle="bold"
         android:textSize="14dp"
+        android:textColor="@color/orgpink"
         android:background="@color/green_200"/>
     </LinearLayout>
 
