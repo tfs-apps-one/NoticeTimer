@@ -68,8 +68,6 @@ public class MainActivity extends AppCompatActivity {
         _country = _local.getCountry();
 
         /* 初期化処理 */
-        Button startButton = findViewById(R.id.btn_start);
-        Button stopButton = findViewById(R.id.btn_clear);
         timerText = findViewById(R.id.timer);
         timerText.setText(dataFormat.format(0));
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
@@ -164,13 +162,23 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 btn_start.setText(R.string.btn_START);
             }
+            btn_start.setBackgroundTintList(null);
             btn_start.setTextColor(getColor(R.color.material_on_background_disabled));
+            btn_start.setBackgroundResource(R.drawable.btn_round2);
+
+            btn_clear.setBackgroundTintList(null);
             btn_clear.setTextColor(getColor(R.color.design_default_color_error));
+            btn_clear.setBackgroundResource(R.drawable.btn_round2);
         }
         else{
+            btn_start.setBackgroundTintList(null);
             btn_start.setText(R.string.btn_START);
             btn_start.setTextColor(getColor(R.color.design_default_color_primary_variant));
+            btn_start.setBackgroundResource(R.drawable.btn_round2);
+
+            btn_clear.setBackgroundTintList(null);
             btn_clear.setTextColor(getColor(R.color.design_default_color_error));
+            btn_clear.setBackgroundResource(R.drawable.btn_round2);
 
             /* タイマー */
             timerText = findViewById(R.id.timer);
@@ -189,6 +197,20 @@ public class MainActivity extends AppCompatActivity {
             if (is_set_vaib == true)    i_btn3.setImageResource(R.drawable.vaib_1);
             else                        i_btn3.setImageResource(R.drawable.vaib_0);
         }
+
+        Button btn1 = (Button)findViewById(R.id.btn_10min);
+        Button btn2 = (Button)findViewById(R.id.btn_1min);
+        Button btn3 = (Button)findViewById(R.id.btn_10sec);
+        Button btn4 = (Button)findViewById(R.id.btn_1sec);
+
+        btn1.setBackgroundTintList(null);
+        btn1.setBackgroundResource(R.drawable.btn_round);
+        btn2.setBackgroundTintList(null);
+        btn2.setBackgroundResource(R.drawable.btn_round);
+        btn3.setBackgroundTintList(null);
+        btn3.setBackgroundResource(R.drawable.btn_round);
+        btn4.setBackgroundTintList(null);
+        btn4.setBackgroundResource(R.drawable.btn_round);
     }
 
     /*

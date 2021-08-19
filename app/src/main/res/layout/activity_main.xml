@@ -44,6 +44,7 @@
             android:onClick="on10min"
             android:textSize="17dp"
             android:textColor="@color/cardview_dark_background"
+            android:textStyle="bold"
             android:text="@string/btn_10MIN" />
 
 
@@ -59,6 +60,7 @@
             android:onClick="on1min"
             android:textSize="17dp"
             android:textColor="@color/cardview_dark_background"
+            android:textStyle="bold"
             android:text="@string/btn_1MIN" />
 
         <Button
@@ -72,6 +74,7 @@
             android:layout_marginEnd="5dp"
             android:onClick="on10sec"
             android:textSize="17dp"
+            android:textStyle="bold"
             android:text="@string/btn_10SEC" />
 
         <Button
@@ -85,6 +88,7 @@
             android:layout_marginEnd="5dp"
             android:onClick="on1sec"
             android:textSize="17dp"
+            android:textStyle="bold"
             android:text="@string/btn_1SEC" />
     </LinearLayout>
 
@@ -244,6 +248,7 @@
         android:text="@string/COMMENT"
         android:textStyle="bold"
         android:textSize="14dp"
+        android:textColor="@color/orgpink"
         android:background="@color/green_200"/>
     </LinearLayout>
 
