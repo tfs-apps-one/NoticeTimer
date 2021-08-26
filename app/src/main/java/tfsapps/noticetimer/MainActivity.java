@@ -20,6 +20,9 @@ import android.media.MediaPlayer;
 //ライト関連
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
+//広告
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.AdRequest;
 
 public class MainActivity extends AppCompatActivity {
     //カウントダウン
@@ -57,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
     private String _language;
     private String _country;
 
+    // 広告
+    private AdView mAdview;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
         /*音*/
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         now_volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        //広告
+        mAdview = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdview.loadAd(adRequest);
 
         /* SeekBar */
         seek_volume = (SeekBar)findViewById(R.id.seekBar);
