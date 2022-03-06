@@ -149,40 +149,43 @@
             android:id="@+id/btn_img_alarm"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginTop="5dp"
             android:layout_marginStart="20dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="20dp"
-            android:onClick="onAlarm"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="1"
             android:background="@color/green_200"
-            android:src="@drawable/alarm_1" />
+            android:onClick="onAlarm"
+            android:src="@drawable/alarm_1"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <ImageButton
             android:id="@+id/btn_img_light"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginTop="5dp"
             android:layout_marginStart="20dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="20dp"
-            android:onClick="onLight"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="1"
             android:background="@color/green_200"
-            android:src="@drawable/light_1" />
+            android:onClick="onLight"
+            android:src="@drawable/light_1"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <ImageButton
             android:id="@+id/btn_img_vaib"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginTop="5dp"
             android:layout_marginStart="20dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="20dp"
-            android:onClick="onVaib"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="1"
             android:background="@color/green_200"
-            android:src="@drawable/vaib_1" />
+            android:onClick="onVaib"
+            android:src="@drawable/vaib_1"
+            tools:ignore="SpeakableTextPresentCheck" />
 
     </LinearLayout>
 
