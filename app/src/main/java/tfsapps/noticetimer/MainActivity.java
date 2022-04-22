@@ -1,6 +1,8 @@
 package tfsapps.noticetimer;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.ContentValues;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -23,6 +25,10 @@ import android.hardware.camera2.CameraManager;
 //広告
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.AdRequest;
+//DB
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     //カウントダウン
@@ -62,6 +68,21 @@ public class MainActivity extends AppCompatActivity {
 
     // 広告
     private AdView mAdview;
+
+    // DB
+    private MyOpenHelper helper;            //DBアクセス
+    private int db_isopen = 0;              //DB使用したか
+    private int db_level = 0;
+    private int db_time_1 = 0;
+    private int db_sw_1 = 0;
+    private int db_time_2 = 0;
+    private int db_sw_2 = 0;
+    private int db_time_3 = 0;
+    private int db_sw_3 = 0;
+    private int db_time_4 = 0;
+    private int db_sw_4 = 0;
+    private int db_time_5 = 0;
+    private int db_sw_5 = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,8 +151,25 @@ public class MainActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
 
+        //DBのロード
+        /* データベース */
+        helper = new MyOpenHelper(this);
+        AppDBInitRoad();
+
         //画面初期化
         DisplayScreen();
+    }
+    @Override
+    public void onPause(){
+        super.onPause();
+        //  DB更新
+        AppDBUpdated();
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+        //  DB更新
+        AppDBUpdated();
     }
     /*
         アプリ終了処理
@@ -149,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
             am.setStreamVolume(AudioManager.STREAM_MUSIC, init_volume, 0);
             am = null;
         }
+        //  DB更新
+        AppDBUpdated();
     }
 
     /*
@@ -449,6 +489,130 @@ public class MainActivity extends AppCompatActivity {
         vibrator.cancel();
         //ライト
         lightControl(false);
+    }
+
+    /***************************************************
+     DB初期ロードおよび設定
+     ****************************************************/
+    public void AppDBInitRoad() {
+        SQLiteDatabase db = helper.getReadableDatabase();
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT");
+        sql.append(" isopen");
+        sql.append(" ,level");
+        sql.append(" ,time_1");
+        sql.append(" ,sw_1");
+        sql.append(" ,time_2");
+        sql.append(" ,sw_2");
+        sql.append(" ,time_3");
+        sql.append(" ,sw_3");
+        sql.append(" ,time_4");
+        sql.append(" ,sw_4");
+        sql.append(" ,time_5");
+        sql.append(" ,sw_5");
+        sql.append(" ,data1");
+        sql.append(" ,data2");
+        sql.append(" ,data3");
+        sql.append(" ,data4");
+        sql.append(" ,data5");
+        sql.append(" FROM appinfo;");
+        try {
+            Cursor cursor = db.rawQuery(sql.toString(), null);
+            //TextViewに表示
+            StringBuilder text = new StringBuilder();
+            if (cursor.moveToNext()) {
+                db_isopen = cursor.getInt(0);
+                db_level = cursor.getInt(1);
+                db_time_1 = cursor.getInt(2);
+                db_sw_1 = cursor.getInt(3);
+                db_time_2 = cursor.getInt(4);
+                db_sw_2 = cursor.getInt(5);
+                db_time_3 = cursor.getInt(6);
+                db_sw_3 = cursor.getInt(7);
+                db_time_4 = cursor.getInt(8);
+                db_sw_4 = cursor.getInt(9);
+                db_time_5 = cursor.getInt(10);
+                db_sw_5 = cursor.getInt(11);
+            }
+        } finally {
+            db.close();
+        }
+
+        db = helper.getWritableDatabase();
+        if (db_isopen == 0) {
+            long ret;
+            /* 新規レコード追加 */
+            ContentValues insertValues = new ContentValues();
+            insertValues.put("isopen", 1);
+            insertValues.put("level", 0);
+            insertValues.put("time_1", 0);
+            insertValues.put("sw_1", 0);
+            insertValues.put("time_2", 0);
+            insertValues.put("sw_2", 0);
+            insertValues.put("time_3", 0);
+            insertValues.put("sw_3", 0);
+            insertValues.put("time_4", 0);
+            insertValues.put("sw_4", 0);
+            insertValues.put("time_5", 0);
+            insertValues.put("sw_5", 0);
+            insertValues.put("data1", 0);
+            insertValues.put("data2", 0);
+            insertValues.put("data3", 0);
+            insertValues.put("data4", 0);
+            insertValues.put("data5", 0);
+            try {
+                ret = db.insert("appinfo", null, insertValues);
+            } finally {
+                db.close();
+            }
+            db_isopen = 1;
+            /*
+            if (ret == -1) {
+                Toast.makeText(this, "DataBase Create.... ERROR", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "DataBase Create.... OK", Toast.LENGTH_SHORT).show();
+            }
+             */
+
+        } else {
+            /*
+            Toast.makeText(this, "Data Loading...  isopen:" + db_isopen, Toast.LENGTH_SHORT).show();
+             */
+
+        }
+    }
+
+    /***************************************************
+     DB更新
+     ****************************************************/
+    public void AppDBUpdated() {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues insertValues = new ContentValues();
+        insertValues.put("isopen", db_isopen);
+        insertValues.put("level", db_level);
+        insertValues.put("time_1", db_time_1);
+        insertValues.put("sw_1", db_sw_1);
+        insertValues.put("time_2", db_time_2);
+        insertValues.put("sw_2", db_sw_2);
+        insertValues.put("time_3", db_time_3);
+        insertValues.put("sw_3", db_sw_3);
+        insertValues.put("time_4", db_time_4);
+        insertValues.put("sw_4", db_sw_4);
+        insertValues.put("time_5", db_time_5);
+        insertValues.put("sw_5", db_sw_5);
+        int ret;
+        try {
+            ret = db.update("appinfo", insertValues, null, null);
+        } finally {
+            db.close();
+        }
+
+        if (ret == -1) {
+            Toast.makeText(this, "Saving.... ERROR ", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Saving.... OK "+ "time1= "+db_time_1+", sw1= "+db_sw_1, Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 }
