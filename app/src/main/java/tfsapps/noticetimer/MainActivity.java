@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private int db_sw_4 = 0;
     private int db_time_5 = 0;
     private int db_sw_5 = 0;
+    private int db_index_wr = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -510,6 +511,7 @@ public class MainActivity extends AppCompatActivity {
         sql.append(" ,sw_4");
         sql.append(" ,time_5");
         sql.append(" ,sw_5");
+        sql.append(" ,index_wr");
         sql.append(" ,data1");
         sql.append(" ,data2");
         sql.append(" ,data3");
@@ -533,6 +535,7 @@ public class MainActivity extends AppCompatActivity {
                 db_sw_4 = cursor.getInt(9);
                 db_time_5 = cursor.getInt(10);
                 db_sw_5 = cursor.getInt(11);
+                db_index_wr = cursor.getInt(12);
             }
         } finally {
             db.close();
@@ -555,6 +558,7 @@ public class MainActivity extends AppCompatActivity {
             insertValues.put("sw_4", 0);
             insertValues.put("time_5", 0);
             insertValues.put("sw_5", 0);
+            insertValues.put("index_wr", 0);
             insertValues.put("data1", 0);
             insertValues.put("data2", 0);
             insertValues.put("data3", 0);
@@ -600,6 +604,7 @@ public class MainActivity extends AppCompatActivity {
         insertValues.put("sw_4", db_sw_4);
         insertValues.put("time_5", db_time_5);
         insertValues.put("sw_5", db_sw_5);
+        insertValues.put("index_wr", db_index_wr);
         int ret;
         try {
             ret = db.update("appinfo", insertValues, null, null);
