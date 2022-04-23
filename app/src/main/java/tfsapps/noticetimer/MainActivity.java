@@ -73,15 +73,15 @@ public class MainActivity extends AppCompatActivity {
     private MyOpenHelper helper;            //DBアクセス
     private int db_isopen = 0;              //DB使用したか
     private int db_level = 0;
-    private int db_time_1 = 0;
+    private long db_time_1 = 0;
     private int db_sw_1 = 0;
-    private int db_time_2 = 0;
+    private long db_time_2 = 0;
     private int db_sw_2 = 0;
-    private int db_time_3 = 0;
+    private long db_time_3 = 0;
     private int db_sw_3 = 0;
-    private int db_time_4 = 0;
+    private long db_time_4 = 0;
     private int db_sw_4 = 0;
-    private int db_time_5 = 0;
+    private long db_time_5 = 0;
     private int db_sw_5 = 0;
     private int db_index_wr = 0;
 
@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         /* データベース */
         helper = new MyOpenHelper(this);
         AppDBInitRoad();
+
 
         //画面初期化
         DisplayScreen();
@@ -281,6 +282,8 @@ public class MainActivity extends AppCompatActivity {
                 countDown.start();
                 isActive = true;
                 isPause = false;
+                // 履歴にセット
+                Set_App_to_Db();
             }
             DisplayScreen();
         }
@@ -492,8 +495,78 @@ public class MainActivity extends AppCompatActivity {
         lightControl(false);
     }
 
+    /*
+        SW変換処理
+        DBデータからアプリデータへ
+    */
+    public void change_sw_db_to_app(){
+        int sw_temp = 111;
+
+        if ((sw_temp/100) > 0){
+            is_set_alarm = true;
+        }
+
+        sw_temp = sw_temp / 10;
+        if ((sw_temp/10) > 0){
+            is_set_light = true;
+        }
+
+        if ((sw_temp%10)> 0){
+            is_set_vaib = true;
+        }
+    }
+    /*
+        SW変換処理
+        アプリデータからDBデータへ
+    */
+    public int change_sw_app_to_db(){
+        int sw_temp = 0;
+
+        if (is_set_alarm){
+            sw_temp = 100;
+        }
+        if (is_set_light){
+            sw_temp += 10;
+        }
+        if (is_set_vaib){
+            sw_temp += 1;
+        }
+        return sw_temp;
+    }
+
     /***************************************************
-     DB初期ロードおよび設定
+         履歴データをDBにセット
+     ****************************************************/
+    public void Set_App_to_Db() {
+
+        //書き込み用インデックスセット
+        db_index_wr++;
+        if (db_index_wr > 5){
+            db_index_wr = 1;
+        }
+
+        switch (db_index_wr){
+            case 1: db_time_1 = countNumber;
+                    db_sw_1 = change_sw_app_to_db();
+                    break;
+            case 2: db_time_2 = countNumber;
+                    db_sw_2 = change_sw_app_to_db();
+                    break;
+            case 3: db_time_3 = countNumber;
+                    db_sw_3 = change_sw_app_to_db();
+                    break;
+            case 4: db_time_4 = countNumber;
+                    db_sw_4 = change_sw_app_to_db();
+                    break;
+            case 5: db_time_5 = countNumber;
+                    db_sw_5 = change_sw_app_to_db();
+                    break;
+        }
+
+    }
+
+    /***************************************************
+        DB初期ロードおよび設定
      ****************************************************/
     public void AppDBInitRoad() {
         SQLiteDatabase db = helper.getReadableDatabase();
@@ -587,7 +660,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /***************************************************
-     DB更新
+         DB更新
      ****************************************************/
     public void AppDBUpdated() {
         SQLiteDatabase db = helper.getWritableDatabase();
