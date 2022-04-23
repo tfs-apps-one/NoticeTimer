@@ -7,5 +7,16 @@
     <string name="btn_START">START</string>
     <string name="btn_STOP">STOP</string>
     <string name="btn_CLEAR">CLEAR</string>
+    <string name="btn_TIPS">TIPS</string>
     <string name="COMMENT">Please display this screen while the timer is running</string>
+
+    <string-array name="list_history">
+        <item>history</item>
+        <item>timer 1</item>
+        <item>timer 2</item>
+        <item>timer 3</item>
+        <item>timer 4</item>
+        <item>timer 5</item>
+    </string-array>
+
 </resources>

@@ -200,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button btn_start = (Button)findViewById(R.id.btn_start);
         Button btn_clear = (Button)findViewById(R.id.btn_clear);
+        Button btn_tips = (Button)findViewById(R.id.btn_tips);
 
         /* 音量 */
         TextView t_volume = (TextView)findViewById(R.id.text_volume);
@@ -222,6 +223,10 @@ public class MainActivity extends AppCompatActivity {
             btn_clear.setBackgroundTintList(null);
             btn_clear.setTextColor(getColor(R.color.design_default_color_error));
             btn_clear.setBackgroundResource(R.drawable.btn_round2);
+
+            btn_tips.setBackgroundTintList(null);
+            btn_tips.setTextColor(getColor(R.color.material_on_background_disabled));
+            btn_tips.setBackgroundResource(R.drawable.btn_round2);
         }
         else{
             btn_start.setBackgroundTintList(null);
@@ -232,6 +237,10 @@ public class MainActivity extends AppCompatActivity {
             btn_clear.setBackgroundTintList(null);
             btn_clear.setTextColor(getColor(R.color.design_default_color_error));
             btn_clear.setBackgroundResource(R.drawable.btn_round2);
+
+            btn_tips.setBackgroundTintList(null);
+            btn_tips.setTextColor(getColor(R.color.teal_700));
+            btn_tips.setBackgroundResource(R.drawable.btn_round2);
 
             /* タイマー */
             timerText = findViewById(R.id.timer);
@@ -397,6 +406,15 @@ public class MainActivity extends AppCompatActivity {
             //エラー表示が親切
         }
     }
+    // TIPS 設定
+    public void onTips(View view){
+        if (isActive == false) {
+            DisplayScreen();
+        }
+        else{
+            //エラー表示が親切
+        }
+    }
 
     /*
         SeekBar処理
@@ -538,10 +556,21 @@ public class MainActivity extends AppCompatActivity {
          履歴データをDBにセット
      ****************************************************/
     public void Set_App_to_Db() {
+        int wr_MAX = 0;
+
+        //  DBセット処理をスキップ
+        if (db_level == 0){
+            return;
+        }
+
+        wr_MAX = db_level;
+        if (db_level > 5){
+            wr_MAX = 5;
+        }
 
         //書き込み用インデックスセット
         db_index_wr++;
-        if (db_index_wr > 5){
+        if (db_index_wr > wr_MAX){
             db_index_wr = 1;
         }
 
@@ -688,7 +717,8 @@ public class MainActivity extends AppCompatActivity {
         if (ret == -1) {
             Toast.makeText(this, "Saving.... ERROR ", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Saving.... OK "+ "time1= "+db_time_1+", sw1= "+db_sw_1, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Saving.... OK "+ "time1= "+db_time_1+", sw1= "+db_sw_1 + "time5= "+db_time_5+", sw5= "+db_sw_5,
+                    Toast.LENGTH_SHORT).show();
         }
 
     }
