@@ -93,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
     private String[] spinnerItems_JP = {"操作履歴", "1:", "2:", "3:","4:","5:"};
     private String[] spinnerItems = {};
 
+    // 履歴
+    private Spinner spinner;
+    private int spinner_select = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Spiner
         // 選択肢
-        Spinner spinner = findViewById(R.id.sp_history);
+        spinner = findViewById(R.id.sp_history);
 
         if (_language.equals("ja")) {
             spinnerItems = spinnerItems_JP;
@@ -177,15 +181,23 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             //　アイテムが選択された時
             @Override
-            public void onItemSelected(AdapterView<?> parent,
+            public void onItemSelected(AdapterView parent,
                                        View view, int position, long id) {
+                /*
                 Spinner spinner = (Spinner)parent;
                 String item = (String)spinner.getSelectedItem();
-//                textView.setText(item);
+                textView.setText(item);
+                 */
+                if (isActive == false){
+                    spinner_select = position;
+                    Set_Db_to_App(spinner_select);
+                    //タイトル消去、履歴セットボタンの追加
+                }
+                DisplayScreen();
             }
 
             //　アイテムが選択されなかった
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onNothingSelected(AdapterView adapterView) {
                 //
             }
         });
@@ -202,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
         helper = new MyOpenHelper(this);
         AppDBInitRoad();
 
+//test_make
+//        db_level = 99;
 
         //画面初期化
         DisplayScreen();
@@ -324,6 +338,13 @@ public class MainActivity extends AppCompatActivity {
         spinnerItems[3] = change_TimeSw_db_to_app(3,db_time_3, db_sw_3);
         spinnerItems[4] = change_TimeSw_db_to_app(4,db_time_4, db_sw_4);
         spinnerItems[5] = change_TimeSw_db_to_app(5,db_time_5, db_sw_5);
+
+        /* SPINNER */
+        if (spinner == null) {
+            spinner = (Spinner) findViewById(R.id.sp_history);
+        }
+        spinner.setSelection(spinner_select);
+
     }
 
     /*
@@ -592,6 +613,7 @@ public class MainActivity extends AppCompatActivity {
         if ((sw/100) > 0)   disp += "■";
         else                disp += "□";
 
+        sw = (sw % 100);
         if ((sw/10) > 0)    disp += "■";
         else                disp += "□";
 
@@ -606,20 +628,38 @@ public class MainActivity extends AppCompatActivity {
         SW変換処理
         DBデータからアプリデータへ
     */
-    public void change_sw_db_to_app(){
-        int sw_temp = 111;
+    public void Set_Db_to_App(int index){
+        int sw_temp = 0;
+
+        switch (index){
+            default: return;
+            case 1: sw_temp = db_sw_1;  countNumber = db_time_1;    break;
+            case 2: sw_temp = db_sw_2;  countNumber = db_time_2;    break;
+            case 3: sw_temp = db_sw_3;  countNumber = db_time_3;    break;
+            case 4: sw_temp = db_sw_4;  countNumber = db_time_4;    break;
+            case 5: sw_temp = db_sw_5;  countNumber = db_time_5;    break;
+        }
 
         if ((sw_temp/100) > 0){
             is_set_alarm = true;
         }
+        else{
+            is_set_alarm = false;
+        }
 
-        sw_temp = sw_temp / 10;
+        sw_temp = (sw_temp % 100);
         if ((sw_temp/10) > 0){
             is_set_light = true;
+        }
+        else{
+            is_set_light = false;
         }
 
         if ((sw_temp%10)> 0){
             is_set_vaib = true;
+        }
+        else{
+            is_set_vaib = false;
         }
     }
     /*
@@ -738,7 +778,7 @@ public class MainActivity extends AppCompatActivity {
             /* 新規レコード追加 */
             ContentValues insertValues = new ContentValues();
             insertValues.put("isopen", 1);
-            insertValues.put("level", 0);
+            insertValues.put("level", 1);
             insertValues.put("time_1", 0);
             insertValues.put("sw_1", 0);
             insertValues.put("time_2", 0);
@@ -761,6 +801,7 @@ public class MainActivity extends AppCompatActivity {
                 db.close();
             }
             db_isopen = 1;
+            db_level = 1;
             /*
             if (ret == -1) {
                 Toast.makeText(this, "DataBase Create.... ERROR", Toast.LENGTH_SHORT).show();
