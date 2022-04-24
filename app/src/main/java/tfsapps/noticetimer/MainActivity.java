@@ -11,9 +11,12 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -85,6 +88,11 @@ public class MainActivity extends AppCompatActivity {
     private int db_sw_5 = 0;
     private int db_index_wr = 0;
 
+    // Spinner
+    private String[] spinnerItems_EN = {"HISTORY", "1:", "2:", "3:","4:","5:"};
+    private String[] spinnerItems_JP = {"操作履歴", "1:", "2:", "3:","4:","5:"};
+    private String[] spinnerItems = {};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,6 +152,43 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        // Spiner
+        // 選択肢
+        Spinner spinner = findViewById(R.id.sp_history);
+
+        if (_language.equals("ja")) {
+            spinnerItems = spinnerItems_JP;
+        }
+        else{
+            spinnerItems = spinnerItems_EN;
+        }
+
+        // ArrayAdapter
+        ArrayAdapter<String> adapter
+                = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, spinnerItems);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // spinner に adapter をセット
+        spinner.setAdapter(adapter);
+
+        // リスナーを登録
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            //　アイテムが選択された時
+            @Override
+            public void onItemSelected(AdapterView<?> parent,
+                                       View view, int position, long id) {
+                Spinner spinner = (Spinner)parent;
+                String item = (String)spinner.getSelectedItem();
+//                textView.setText(item);
+            }
+
+            //　アイテムが選択されなかった
+            public void onNothingSelected(AdapterView<?> parent) {
+                //
+            }
+        });
     }
     /*
         アプリスタート処理
@@ -273,6 +318,12 @@ public class MainActivity extends AppCompatActivity {
         btn3.setBackgroundResource(R.drawable.btn_round);
         btn4.setBackgroundTintList(null);
         btn4.setBackgroundResource(R.drawable.btn_round);
+
+        spinnerItems[1] = change_TimeSw_db_to_app(1,db_time_1, db_sw_1);
+        spinnerItems[2] = change_TimeSw_db_to_app(2,db_time_2, db_sw_2);
+        spinnerItems[3] = change_TimeSw_db_to_app(3,db_time_3, db_sw_3);
+        spinnerItems[4] = change_TimeSw_db_to_app(4,db_time_4, db_sw_4);
+        spinnerItems[5] = change_TimeSw_db_to_app(5,db_time_5, db_sw_5);
     }
 
     /*
@@ -512,6 +563,44 @@ public class MainActivity extends AppCompatActivity {
         //ライト
         lightControl(false);
     }
+
+    /*
+        TIME 表示形式（文字列）　変換処理
+        DBデータからアプリデータへ
+        引数：db_time1〜5
+    */
+    public String change_TimeSw_db_to_app(int index, long time, int sw){
+        String disp = "";
+        long min = 0;
+        long sec = 0;
+
+        min = (time/MIN_1);
+        sec = ((time % MIN_1) / SEC_1);
+
+        switch (index){
+            default:
+            case 1: disp = "履歴① ";  break;
+            case 2: disp = "履歴② ";  break;
+            case 3: disp = "履歴③ ";  break;
+            case 4: disp = "履歴④ ";  break;
+            case 5: disp = "履歴⑤ ";  break;
+        }
+
+        disp += String.format("%02d:%02d:00",min,sec);
+        disp += ", ";
+
+        if ((sw/100) > 0)   disp += "■";
+        else                disp += "□";
+
+        if ((sw/10) > 0)    disp += "■";
+        else                disp += "□";
+
+        if ((sw%10) > 0)    disp += "■";
+        else                disp += "□";
+
+        return disp;
+    }
+
 
     /*
         SW変換処理
