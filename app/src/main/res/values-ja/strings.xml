@@ -7,6 +7,7 @@
     <string name="btn_START">開始</string>
     <string name="btn_STOP">停止</string>
     <string name="btn_CLEAR">クリア</string>
+    <string name="btn_SET">SET</string>
     <string name="btn_TIPS">TIPS</string>
     <string name="COMMENT">カウントダウン中はアプリ画面を閉じないで下さい</string>
 

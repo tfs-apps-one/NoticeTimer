@@ -190,8 +190,7 @@ public class MainActivity extends AppCompatActivity {
                  */
                 if (isActive == false){
                     spinner_select = position;
-                    Set_Db_to_App(spinner_select);
-                    //タイトル消去、履歴セットボタンの追加
+//                    Set_Db_to_App(spinner_select);
                 }
                 DisplayScreen();
             }
@@ -259,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button btn_start = (Button)findViewById(R.id.btn_start);
         Button btn_clear = (Button)findViewById(R.id.btn_clear);
+        Button btn_set = (Button)findViewById(R.id.btn_set);
         Button btn_tips = (Button)findViewById(R.id.btn_tips);
 
         /* 音量 */
@@ -283,6 +283,10 @@ public class MainActivity extends AppCompatActivity {
             btn_clear.setTextColor(getColor(R.color.design_default_color_error));
             btn_clear.setBackgroundResource(R.drawable.btn_round2);
 
+            btn_set.setBackgroundTintList(null);
+            btn_set.setTextColor(getColor(R.color.material_on_background_disabled));
+            btn_set.setBackgroundResource(R.drawable.btn_round2);
+
             btn_tips.setBackgroundTintList(null);
             btn_tips.setTextColor(getColor(R.color.material_on_background_disabled));
             btn_tips.setBackgroundResource(R.drawable.btn_round2);
@@ -296,6 +300,10 @@ public class MainActivity extends AppCompatActivity {
             btn_clear.setBackgroundTintList(null);
             btn_clear.setTextColor(getColor(R.color.design_default_color_error));
             btn_clear.setBackgroundResource(R.drawable.btn_round2);
+
+            btn_set.setBackgroundTintList(null);
+            btn_set.setTextColor(getColor(R.color.design_default_color_primary_variant));
+            btn_set.setBackgroundResource(R.drawable.btn_round2);
 
             btn_tips.setBackgroundTintList(null);
             btn_tips.setTextColor(getColor(R.color.teal_700));
@@ -478,7 +486,18 @@ public class MainActivity extends AppCompatActivity {
             //エラー表示が親切
         }
     }
-    // TIPS 設定
+    // SET
+    public void onSet(View view){
+        if (isActive == false) {
+            Set_Db_to_App(spinner_select);
+            DisplayScreen();
+        }
+        else{
+            //エラー表示が親切
+        }
+    }
+
+    // TIPS
     public void onTips(View view){
         if (isActive == false) {
             DisplayScreen();
