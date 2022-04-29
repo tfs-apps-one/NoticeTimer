@@ -31,12 +31,16 @@ import android.hardware.camera2.CameraManager;
 //広告
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.reward.RewardItem;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
+import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 //DB
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RewardedVideoAdListener {
     //カウントダウン
     private CountDown countDown;
     private TextView timerText;
@@ -101,6 +105,18 @@ public class MainActivity extends AppCompatActivity {
     private int spinner_select = 0;
 
     final int LV_MAX = 5;
+
+    // リワード広告
+    private RewardedVideoAd mRewardedVideoAd;
+/*
+    // テストID
+    private static final String AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
+    // テストID(APPは本物でOK)
+    private static final String APP_ID = "ca-app-pub-4924620089567925~4348547503";
+*/
+
+    private static final String AD_UNIT_ID = "ca-app-pub-4924620089567925/2903641531";
+    private static final String APP_ID = "ca-app-pub-4924620089567925~4348547503";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,7 +215,80 @@ public class MainActivity extends AppCompatActivity {
                 //
             }
         });
+
+
+        // リワード広告
+        MobileAds.initialize(this, APP_ID);
+        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
+        mRewardedVideoAd.setRewardedVideoAdListener(this);
+        loadRewardedVideoAd();
     }
+
+    /*
+        リワード広告処理
+     */
+    private void loadRewardedVideoAd() {
+        mRewardedVideoAd.loadAd(AD_UNIT_ID,new AdRequest.Builder().build());
+    }
+
+    @Override
+    public void onRewarded(RewardItem reward) {
+        // Reward the user.
+        int tmp_level = db_level;
+        db_level++;
+        if (db_level >= LV_MAX){
+            db_level = LV_MAX;
+        }
+
+        //ユーザーレベルアップ
+        if (_language.equals("ja")) {
+            Toast.makeText(this, "履歴数UP!!：" + (tmp_level) + "  → " + (db_level), Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(this, "History UP!!：" + (tmp_level) + "  → " + (db_level), Toast.LENGTH_SHORT).show();
+        }
+        AppDBUpdated();
+    }
+
+    @Override
+    public void onRewardedVideoAdLeftApplication() {
+        /*
+        Toast.makeText(this, "onRewardedVideoAdLeftApplication",
+                Toast.LENGTH_SHORT).show();
+         */
+    }
+
+    @Override
+    public void onRewardedVideoAdClosed() {
+//        Toast.makeText(this, "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRewardedVideoAdFailedToLoad(int errorCode) {
+//        Toast.makeText(this, "onRewardedVideoAdFailedToLoad err="+errorCode, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRewardedVideoAdLoaded() {
+//        Toast.makeText(this, "onRewardedVideoAdLoaded", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRewardedVideoAdOpened() {
+//        Toast.makeText(this, "onRewardedVideoAdOpened", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRewardedVideoStarted() {
+//        Toast.makeText(this, "onRewardedVideoStarted", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRewardedVideoCompleted() {
+//        Toast.makeText(this, "onRewardedVideoCompleted", Toast.LENGTH_SHORT).show();
+    }
+
+
     /*
         アプリスタート処理
      */
@@ -219,10 +308,17 @@ public class MainActivity extends AppCompatActivity {
         DisplayScreen();
     }
     @Override
+    public void onResume() {
+        super.onResume();
+        //動画
+        mRewardedVideoAd.resume(this);
+    }
+    @Override
     public void onPause(){
         super.onPause();
         //  DB更新
         AppDBUpdated();
+        mRewardedVideoAd.pause(this);
     }
     @Override
     public void onStop(){
@@ -248,6 +344,8 @@ public class MainActivity extends AppCompatActivity {
         }
         //  DB更新
         AppDBUpdated();
+        //動画
+        mRewardedVideoAd.destroy(this);
     }
 
     /*
@@ -549,11 +647,18 @@ public class MainActivity extends AppCompatActivity {
             guide.setPositiveButton(btn_yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    /*
                     db_level++;
                     if (db_level >= LV_MAX){
                         db_level = LV_MAX;
                     }
                     DisplayScreen();
+                    onRewardedVideoStarted();
+
+                     */
+                    if (mRewardedVideoAd.isLoaded()) {
+                        mRewardedVideoAd.show();
+                    }
                 }
             });
             guide.setNegativeButton(btn_no, new DialogInterface.OnClickListener() {
@@ -961,14 +1066,14 @@ public class MainActivity extends AppCompatActivity {
         } finally {
             db.close();
         }
-
+        /*
         if (ret == -1) {
             Toast.makeText(this, "Saving.... ERROR ", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Saving.... OK "+ "time1= "+db_time_1+", sw1= "+db_sw_1 + "time5= "+db_time_5+", sw5= "+db_sw_5,
                     Toast.LENGTH_SHORT).show();
         }
-
+        */
     }
 
 }
