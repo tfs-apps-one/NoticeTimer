@@ -26,6 +26,7 @@ public class MyOpenHelper extends SQLiteOpenHelper
                 + "sw_4 integer,"               //ＳＷ　履歴４
                 + "time_5 integer,"             //時間　履歴５
                 + "sw_5 integer,"               //ＳＷ　履歴５
+                + "index_wr integer,"           //最終ライトしたレコード番号（インデックス）
                 + "data1 integer,"              //
                 + "data2 integer,"              //
                 + "data3 integer,"              //
