@@ -2,8 +2,11 @@ package tfsapps.noticetimer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 
@@ -97,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinner;
     private int spinner_select = 0;
 
+    final int LV_MAX = 5;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,14 +188,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView parent,
                                        View view, int position, long id) {
-                /*
-                Spinner spinner = (Spinner)parent;
-                String item = (String)spinner.getSelectedItem();
-                textView.setText(item);
-                 */
                 if (isActive == false){
                     spinner_select = position;
-//                    Set_Db_to_App(spinner_select);
                 }
                 DisplayScreen();
             }
@@ -499,11 +498,79 @@ public class MainActivity extends AppCompatActivity {
 
     // TIPS
     public void onTips(View view){
+        AlertDialog.Builder guide = new AlertDialog.Builder(this);
+        TextView vmessage = new TextView(this);
+        int level = 0;
+        String pop_message = "";
+        String btn_yes = "";
+        String btn_no = "";
+
+
+
         if (isActive == false) {
-            DisplayScreen();
+
+            //ユーザーレベル算出
+            level = db_level;
+            level++;
+            if (level >= LV_MAX){
+                level = LV_MAX;
+            }
+
+            if (_language.equals("ja")) {
+
+                pop_message += "\n\n 動画を視聴して操作履歴を増やしますか？" +
+                        "\n\n\n ・視聴するたびに履歴数が増えます" +
+                        "\n ・現在の履歴数「"+db_level+"」→「"+level+"」"+"\n \n\n\n";
+
+                btn_yes += "視聴";
+                btn_no += "中止";
+            }
+            else{
+                pop_message += "\n\n \n" +
+                        "Do you want to watch the video and increase the operation history?" +
+                        "\n\n\n The number of histories increases every time you watch." +
+                        "\n\n Number of histories「"+db_level+"」→「"+level+"」"+"\n \n\n\n";
+
+                btn_yes += "YES";
+                btn_no += "N O";
+            }
+
+                //メッセージ
+            vmessage.setText(pop_message);
+            vmessage.setBackgroundColor(Color.DKGRAY);
+            vmessage.setTextColor(Color.WHITE);
+//            vmessage.setTextSize(20);
+
+            //タイトル
+            guide.setTitle("TIPS");
+            guide.setIcon(R.drawable.present);
+            guide.setView(vmessage);
+
+            guide.setPositiveButton(btn_yes, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    db_level++;
+                    if (db_level >= LV_MAX){
+                        db_level = LV_MAX;
+                    }
+                    DisplayScreen();
+                }
+            });
+            guide.setNegativeButton(btn_no, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    DisplayScreen();
+                }
+            });
+
+            guide.create();
+            guide.show();
+
+
+//            DisplayScreen();
         }
         else{
-            //エラー表示が親切
+
         }
     }
 
@@ -617,13 +684,45 @@ public class MainActivity extends AppCompatActivity {
         min = (time/MIN_1);
         sec = ((time % MIN_1) / SEC_1);
 
-        switch (index){
-            default:
-            case 1: disp = "履歴① ";  break;
-            case 2: disp = "履歴② ";  break;
-            case 3: disp = "履歴③ ";  break;
-            case 4: disp = "履歴④ ";  break;
-            case 5: disp = "履歴⑤ ";  break;
+        if (_language.equals("ja")) {
+            switch (index) {
+                default:
+                case 1:
+                    disp = "履歴① ";
+                    break;
+                case 2:
+                    disp = "履歴② ";
+                    break;
+                case 3:
+                    disp = "履歴③ ";
+                    break;
+                case 4:
+                    disp = "履歴④ ";
+                    break;
+                case 5:
+                    disp = "履歴⑤ ";
+                    break;
+            }
+        }
+        else{
+            switch (index) {
+                default:
+                case 1:
+                    disp = "[1] ";
+                    break;
+                case 2:
+                    disp = "[2] ";
+                    break;
+                case 3:
+                    disp = "[3] ";
+                    break;
+                case 4:
+                    disp = "[4] ";
+                    break;
+                case 5:
+                    disp = "[5] ";
+                    break;
+            }
         }
 
         disp += String.format("%02d:%02d:00",min,sec);
