@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
             //　アイテムが選択されなかった
             public void onNothingSelected(AdapterView adapterView) {
                 //
+                DisplayScreen();
             }
         });
 
@@ -302,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
         AppDBInitRoad();
 
 //test_make
-//        db_level = 99;
+//      db_level = 2;
 
         //画面初期化
         DisplayScreen();
@@ -445,11 +446,13 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
         spinnerItems[5] = change_TimeSw_db_to_app(5,db_time_5, db_sw_5);
 
         /* SPINNER */
-        if (spinner == null) {
-            spinner = (Spinner) findViewById(R.id.sp_history);
-        }
-        spinner.setSelection(spinner_select);
-
+        Spinner tmp_spinner = findViewById(R.id.sp_history);
+        ArrayAdapter<String> adapter
+                = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, spinnerItems);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        tmp_spinner.setAdapter(adapter);
+        tmp_spinner.setSelection(spinner_select);
     }
 
     /*
