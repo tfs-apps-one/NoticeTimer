@@ -1,7 +1,9 @@
 package tfsapps.noticetimer;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,6 +15,7 @@ import android.os.Bundle;
 //タイマー関連
 import android.os.CountDownTimer;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,18 +32,22 @@ import android.media.MediaPlayer;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 //広告
+import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.reward.RewardItem;
-import com.google.android.gms.ads.reward.RewardedVideoAd;
-import com.google.android.gms.ads.reward.RewardedVideoAdListener;
+import com.google.android.gms.ads.OnUserEarnedRewardListener;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 //DB
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements RewardedVideoAdListener {
+public class MainActivity extends AppCompatActivity {
     //カウントダウン
     private CountDown countDown;
     private TextView timerText;
@@ -107,7 +114,12 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
     final int LV_MAX = 5;
 
     // リワード広告
+    public LoadAdError adError;
+    public RewardedAd rewardedAd;
+    /*
     private RewardedVideoAd mRewardedVideoAd;
+
+     */
 /*
     // テストID
     private static final String AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
@@ -217,23 +229,62 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
             }
         });
 
-
+        /*
         // リワード広告
         MobileAds.initialize(this, APP_ID);
         mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
         mRewardedVideoAd.setRewardedVideoAdListener(this);
         loadRewardedVideoAd();
+
+         */
+
+        RewardedAd.load(this,
+                AD_UNIT_ID,
+//                "ca-app-pub-3940256099942544/5224354917",
+                new AdRequest.Builder().build(),
+                new RewardedAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(RewardedAd Ad) {
+                        rewardedAd = Ad;
+//                        Log.d("TAG", "The rewarded ad loaded.");
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(LoadAdError adError) {
+//                        Log.d("TAG", "The rewarded ad wasn't loaded yet.");
+                    }
+                });
+
     }
 
     /*
         リワード広告処理
      */
+    /*
     private void loadRewardedVideoAd() {
         mRewardedVideoAd.loadAd(AD_UNIT_ID,new AdRequest.Builder().build());
     }
+     */
 
-    @Override
-    public void onRewarded(RewardItem reward) {
+    public void RdShow(){
+        if (rewardedAd != null) {
+            Activity activityContext = MainActivity.this;
+            rewardedAd.show(activityContext, new OnUserEarnedRewardListener() {
+                @Override
+                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+                    // Handle the reward.
+//                    Log.d("TAG", "The user earned the reward.");
+                    int rewardAmount = rewardItem.getAmount();
+                    String rewardType = rewardItem.getType();
+                    RdPresent();
+                }
+            });
+        } else {
+//            Log.d("TAG", "The rewarded ad wasn't ready yet.");
+        }
+    }
+
+    public void RdPresent(){
         // Reward the user.
         int tmp_level = db_level;
         db_level++;
@@ -249,44 +300,6 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
             Toast.makeText(this, "History UP!!：" + (tmp_level) + "  → " + (db_level), Toast.LENGTH_SHORT).show();
         }
         AppDBUpdated();
-    }
-
-    @Override
-    public void onRewardedVideoAdLeftApplication() {
-        /*
-        Toast.makeText(this, "onRewardedVideoAdLeftApplication",
-                Toast.LENGTH_SHORT).show();
-         */
-    }
-
-    @Override
-    public void onRewardedVideoAdClosed() {
-//        Toast.makeText(this, "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoAdFailedToLoad(int errorCode) {
-//        Toast.makeText(this, "onRewardedVideoAdFailedToLoad err="+errorCode, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoAdLoaded() {
-//        Toast.makeText(this, "onRewardedVideoAdLoaded", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoAdOpened() {
-//        Toast.makeText(this, "onRewardedVideoAdOpened", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoStarted() {
-//        Toast.makeText(this, "onRewardedVideoStarted", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoCompleted() {
-//        Toast.makeText(this, "onRewardedVideoCompleted", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -312,14 +325,14 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
     public void onResume() {
         super.onResume();
         //動画
-        mRewardedVideoAd.resume(this);
+        //mRewardedVideoAd.resume(this);
     }
     @Override
     public void onPause(){
         super.onPause();
         //  DB更新
         AppDBUpdated();
-        mRewardedVideoAd.pause(this);
+        //mRewardedVideoAd.pause(this);
     }
     @Override
     public void onStop(){
@@ -346,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
         //  DB更新
         AppDBUpdated();
         //動画
-        mRewardedVideoAd.destroy(this);
+        //mRewardedVideoAd.destroy(this);
     }
 
     /*
@@ -659,9 +672,13 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
                     onRewardedVideoStarted();
 
                      */
+                    /*
                     if (mRewardedVideoAd.isLoaded()) {
                         mRewardedVideoAd.show();
                     }
+
+                     */
+                    RdShow();
                 }
             });
             guide.setNegativeButton(btn_no, new DialogInterface.OnClickListener() {
