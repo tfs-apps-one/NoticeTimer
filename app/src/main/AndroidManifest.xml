@@ -23,7 +23,7 @@
         android:theme="@style/Theme.NoticeTimer">
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-4924620089567925~2961145929" />
+            android:value="ca-app-pub-4924620089567925~4348547503" />
 
         <activity android:name=".MainActivity"
                   android:exported="true">
