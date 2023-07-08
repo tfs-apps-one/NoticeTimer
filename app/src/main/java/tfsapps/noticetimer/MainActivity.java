@@ -246,6 +246,14 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onAdLoaded(RewardedAd Ad) {
                         rewardedAd = Ad;
+                        Context context = getApplicationContext();
+                        if (_language.equals("ja")) {
+                            Toast.makeText(context, "報酬動画準備OK !!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(context, "Movie OK !!", Toast.LENGTH_SHORT).show();
+                        }
+
 //                        Log.d("TAG", "The rewarded ad loaded.");
                     }
 
