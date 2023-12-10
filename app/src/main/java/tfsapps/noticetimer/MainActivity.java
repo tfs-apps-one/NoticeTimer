@@ -2,18 +2,22 @@ package tfsapps.noticetimer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 
 //タイマー関連
 import android.os.CountDownTimer;
+import android.os.PowerManager;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -47,6 +52,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+
 public class MainActivity extends AppCompatActivity {
     //カウントダウン
     private CountDown countDown;
@@ -54,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private SimpleDateFormat dataFormat = new SimpleDateFormat("mm:ss.SS", Locale.US);
     //バイブレーション
     static private Vibrator vibrator;
+    static private WakeLock wakeLock;
     //アラーム
     private MediaPlayer alarm;
     //ライト関連
@@ -102,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
     private int db_sw_5 = 0;
     private int db_index_wr = 0;
 
+    private int _darkmode = 0;
+
     // Spinner
     private String[] spinnerItems_EN = {"HISTORY", "1:", "2:", "3:","4:","5:"};
     private String[] spinnerItems_JP = {"操作履歴", "1:", "2:", "3:","4:","5:"};
@@ -130,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String AD_UNIT_ID = "ca-app-pub-4924620089567925/2903641531";
     private static final String APP_ID = "ca-app-pub-4924620089567925~4348547503";
 
+    @SuppressLint("InvalidWakeLockTag")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,6 +156,11 @@ public class MainActivity extends AppCompatActivity {
         timerText = findViewById(R.id.timer);
         timerText.setText(dataFormat.format(0));
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        // PowerManagerサービスの取得
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+        // PARTIAL_WAKE_LOCKを使ってWakeLockを取得する（スクリーンがオフでもCPUを起動し続ける）
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
         alarm = MediaPlayer.create(this, R.raw.alarm);
 
         //カメラ初期化
@@ -334,6 +351,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         //動画
         //mRewardedVideoAd.resume(this);
+        // WakeLockを取得
+        wakeLock.acquire();
     }
     @Override
     public void onPause(){
@@ -341,6 +360,8 @@ public class MainActivity extends AppCompatActivity {
         //  DB更新
         AppDBUpdated();
         //mRewardedVideoAd.pause(this);
+        // WakeLockを解放
+        wakeLock.release();
     }
     @Override
     public void onStop(){
@@ -379,6 +400,37 @@ public class MainActivity extends AppCompatActivity {
         Button btn_clear = (Button)findViewById(R.id.btn_clear);
         Button btn_set = (Button)findViewById(R.id.btn_set);
         Button btn_tips = (Button)findViewById(R.id.btn_tips);
+
+        /*
+        LinearLayout layout_0 = findViewById(R.id.linearLayout);
+        LinearLayout layout_1 = findViewById(R.id.linearLayout1);
+        LinearLayout layout_2 = findViewById(R.id.linearLayout2);
+        LinearLayout layout_3 = findViewById(R.id.linearLayout3);
+        LinearLayout layout_4 = findViewById(R.id.linearLayout4);
+        LinearLayout layout_10 = findViewById(R.id.linearLayout10);
+        LinearLayout layout_11 = findViewById(R.id.linearLayout11);
+
+        //ダークモードON
+        if (_darkmode == AppCompatDelegate.MODE_NIGHT_YES){
+            layout_0.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_1.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_2.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_3.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_4.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_10.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_11.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+        }
+        //OFF
+        else{
+            layout_0.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_1.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_2.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_3.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_4.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_10.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_11.setBackgroundColor(getResources().getColor(R.color.green_200));
+        }
+        */
 
         /* 音量 */
         TextView t_volume = (TextView)findViewById(R.id.text_volume);
