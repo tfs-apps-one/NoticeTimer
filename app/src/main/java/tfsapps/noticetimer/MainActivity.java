@@ -37,16 +37,17 @@ import android.media.MediaPlayer;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 //広告
-import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
 //DB
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -127,17 +128,14 @@ public class MainActivity extends AppCompatActivity {
     // リワード広告
     public LoadAdError adError;
     public RewardedAd rewardedAd;
-    /*
-    private RewardedVideoAd mRewardedVideoAd;
 
-     */
-/*
+    /*
     // テストID
     private static final String AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
     // テストID(APPは本物でOK)
     private static final String APP_ID = "ca-app-pub-4924620089567925~4348547503";
-*/
-
+    */
+    //本番
     private static final String AD_UNIT_ID = "ca-app-pub-4924620089567925/2903641531";
     private static final String APP_ID = "ca-app-pub-4924620089567925~4348547503";
 
@@ -178,9 +176,13 @@ public class MainActivity extends AppCompatActivity {
         now_volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
 
         //広告
-        mAdview = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdview.loadAd(adRequest);
+        MobileAds.initialize(this, initializationStatus -> {
+            // 初期化完了後に広告をロード
+            mAdview = findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdview.loadAd(adRequest);
+        });
+
 
         /* SeekBar */
         seek_volume = (SeekBar)findViewById(R.id.seekBar);
@@ -246,15 +248,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /*
-        // リワード広告
-        MobileAds.initialize(this, APP_ID);
-        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
-        mRewardedVideoAd.setRewardedVideoAdListener(this);
-        loadRewardedVideoAd();
+        //リワード広告
+        Rdloading();
+    }
 
-         */
-
+    public void Rdloading(){
         RewardedAd.load(this,
                 AD_UNIT_ID,
 //                "ca-app-pub-3940256099942544/5224354917",
@@ -273,23 +271,12 @@ public class MainActivity extends AppCompatActivity {
 
 //                        Log.d("TAG", "The rewarded ad loaded.");
                     }
-
                     @Override
                     public void onAdFailedToLoad(LoadAdError adError) {
 //                        Log.d("TAG", "The rewarded ad wasn't loaded yet.");
                     }
                 });
-
     }
-
-    /*
-        リワード広告処理
-     */
-    /*
-    private void loadRewardedVideoAd() {
-        mRewardedVideoAd.loadAd(AD_UNIT_ID,new AdRequest.Builder().build());
-    }
-     */
 
     public void RdShow(){
         if (rewardedAd != null) {
@@ -325,6 +312,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "History UP!!：" + (tmp_level) + "  → " + (db_level), Toast.LENGTH_SHORT).show();
         }
         AppDBUpdated();
+        Rdloading();
     }
 
 
@@ -839,6 +827,15 @@ public class MainActivity extends AppCompatActivity {
         if (is_set_vaib) {
             long vibratePattern[] = {300, 1000, 300, 1000};/* OFF→ON→OFF→ON*/
             vibrator.vibrate(vibratePattern, 1);
+
+            /* test_make */
+            /*
+                https://chat.openai.com/share/f405cb48-c3f6-4b3a-8c53-839b194e7ba3
+            */
+            //電源OFFでも強制的にバイブさせる方法（ChatGPTより）
+//            repeat = -1 が無限繰り返し、 =1にしているは正しくないかもです、　！！！！要確認です            
+//            VibrationEffect vibrationEffect = VibrationEffect.createWaveform(pattern, repeat);
+//            vibrator.vibrate(vibrationEffect);
         }
         //ライト
         if (is_set_light == true) {
