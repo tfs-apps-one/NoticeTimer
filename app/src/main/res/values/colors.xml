@@ -3,10 +3,18 @@
     <color name="purple_200">#FFBBDDFC</color>
     <color name="purple_500">#FFAABBEE</color>
     <color name="purple_700">#EE99AAEE</color>
-    <color name="green_200">#FFEDEDED</color>
+    <color name="green_200">#FFCCCCCC</color>
+    <color name="green_200_org">#FFEDEDED</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="orgpink">#EEDD4444</color>
+
+    <color name="design_default_color_error">#B00020</color>
+    <color name="design_default_color_primary_variant">#3700B3</color>
+    <color name="material_on_background_disabled">#999999</color>
+
+    <color name="textColorPrimary">#3700B3</color>
+
 </resources>

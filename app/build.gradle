@@ -1,17 +1,17 @@
 plugins {
-    id 'com.android.application'
-    id 'com.google.gms.google-services'
+    alias(libs.plugins.android.application)
 }
 
 android {
-    compileSdkVersion 30
+    namespace 'tfsapps.noticetimer'
+    compileSdk 34
 
     defaultConfig {
         applicationId "tfsapps.noticetimer"
-        minSdkVersion 26
-        targetSdkVersion 30
-        versionCode 6
-        versionName "1.5"
+        minSdk 26
+        targetSdk 34
+        versionCode 10
+        versionName "2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -29,10 +29,13 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'com.google.android.material:material:1.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'androidx.navigation:navigation-fragment:2.2.2'
-    implementation 'androidx.navigation:navigation-ui:2.2.2'
-    implementation 'com.google.firebase:firebase-ads:19.1.0'
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.activity
+    implementation libs.constraintlayout
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+    implementation 'com.google.android.gms:play-services-ads:23.2.0'
 }

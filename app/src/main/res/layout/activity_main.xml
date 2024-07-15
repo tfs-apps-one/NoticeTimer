@@ -12,13 +12,14 @@
 
     <TextView
         android:id="@+id/timer"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_margin="0dp"
+        android:layout_marginBottom="0dp"
         android:textColor="#555599"
         android:textSize="60sp"
-        android:background="@color/cardview_shadow_end_color"
+        android:gravity="center"
+        android:background="@drawable/bak_grad2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -30,7 +31,7 @@
         android:layout_height="80dp"
         android:layout_alignParentStart="true"
         app:layout_constraintTop_toBottomOf="@+id/timer"
-        android:background="@color/green_200"
+        android:background="@drawable/bak_grad2"
         android:orientation="horizontal">
 
         <Button
@@ -99,7 +100,7 @@
         android:layout_height="70dp"
         android:layout_alignParentStart="true"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        android:background="@color/green_200"
+        android:background="@drawable/bak_grad2"
         android:orientation="horizontal">
 
     <Button
@@ -142,7 +143,7 @@
         android:layout_height="80dp"
         android:layout_alignParentStart="true"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout1"
-        android:background="@color/green_200"
+        android:background="@drawable/bak_grad2"
         android:orientation="horizontal">
 
         <ImageButton
@@ -154,7 +155,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
-            android:background="@color/green_200"
+            android:background="@drawable/bak_grad2"
             android:onClick="onAlarm"
             android:src="@drawable/alarm_1"
             tools:ignore="SpeakableTextPresentCheck" />
@@ -168,7 +169,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
-            android:background="@color/green_200"
+            android:background="@drawable/bak_grad2"
             android:onClick="onLight"
             android:src="@drawable/light_1"
             tools:ignore="SpeakableTextPresentCheck" />
@@ -182,7 +183,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
-            android:background="@color/green_200"
+            android:background="@drawable/bak_grad2"
             android:onClick="onVaib"
             android:src="@drawable/vaib_1"
             tools:ignore="SpeakableTextPresentCheck" />
@@ -195,7 +196,7 @@
         android:layout_height="40dp"
         android:layout_alignParentStart="true"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
-        android:background="@color/green_200"
+        android:background="@drawable/bak_grad2"
         android:orientation="horizontal">
 
     <TextView
@@ -209,9 +210,11 @@
         android:layout_marginEnd="5dp"
         android:gravity="center|right"
         android:text="1"
+        android:textColor="@color/teal_700"
         android:textStyle="bold"
         android:textSize="20dp"
-        android:background="@color/green_200"/>
+        android:background="@drawable/bak_grad2"
+        />
 
 
         <SeekBar
@@ -226,7 +229,8 @@
         android:progress="5"
         android:max="15"
         android:progressBackgroundTint="@color/design_default_color_primary_variant"
-        android:background="@color/green_200"/>
+        android:background="@drawable/bak_grad2"
+            />
 
     </LinearLayout>
 
@@ -236,7 +240,7 @@
         android:layout_height="50dp"
         android:layout_alignParentStart="true"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
-        android:background="@color/green_200"
+        android:background="@drawable/bak_grad2"
         android:orientation="horizontal">
 
     <TextView
@@ -251,9 +255,10 @@
         android:gravity="center"
         android:text="@string/COMMENT"
         android:textStyle="bold"
-        android:textSize="14dp"
-        android:textColor="@color/orgpink"
-        android:background="@color/green_200"/>
+        android:textSize="16dp"
+        android:textColor="@color/design_default_color_error"
+        android:background="@drawable/bak_grad2"
+        />
     </LinearLayout>
 
     <LinearLayout
@@ -262,15 +267,20 @@
         android:layout_height="60dp"
         android:layout_alignParentStart="true"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
-        android:background="@color/green_200"
+        android:background="@drawable/bak_grad2"
         android:orientation="horizontal">
 
         <Spinner
             android:id="@+id/sp_history"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="3"
+            android:layout_weight="2"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
             android:backgroundTint="@null"
+            android:background="@drawable/btn_round2"
             android:entries="@array/list_history"
             android:spinnerMode="dialog"/>
 
@@ -300,7 +310,7 @@
         android:layout_height="60dp"
         android:layout_alignParentStart="true"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout10"
-        android:background="@color/green_200"
+        android:background="@drawable/bak_grad2"
         android:orientation="horizontal">
 
         <!--
@@ -348,6 +358,17 @@
         tools:layout_editor_absoluteX="16dp"
         tools:layout_editor_absoluteY="16dp">
 
+        <!--
+        <TextView
+            android:id="@+id/dummy_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:text="dummy" />
+            -->
+
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView"
             android:layout_width="match_parent"
@@ -356,7 +377,16 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="5dp"
             ads:adSize="BANNER"
-            ads:adUnitId="ca-app-pub-4924620089567925/8096220828"></com.google.android.gms.ads.AdView>
+            ads:adUnitId="ca-app-pub-4924620089567925/8096220828">
+            </com.google.android.gms.ads.AdView>
+
     </LinearLayout>
+
+    <!--
+        本番
+    ads:adUnitId="ca-app-pub-4924620089567925/8096220828">
+        テスト
+    ads:adUnitId="ca-app-pub-3940256099942544/9214589741">
+    -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

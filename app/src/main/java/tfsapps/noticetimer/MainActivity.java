@@ -1,23 +1,31 @@
 package tfsapps.noticetimer;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 
 //タイマー関連
 import android.os.CountDownTimer;
+import android.os.PowerManager;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -31,22 +39,31 @@ import android.hardware.camera2.CameraManager;
 //広告
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.reward.RewardItem;
-import com.google.android.gms.ads.reward.RewardedVideoAd;
-import com.google.android.gms.ads.reward.RewardedVideoAdListener;
+import com.google.android.gms.ads.OnUserEarnedRewardListener;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
 //DB
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements RewardedVideoAdListener {
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+
+public class MainActivity extends AppCompatActivity {
     //カウントダウン
     private CountDown countDown;
     private TextView timerText;
     private SimpleDateFormat dataFormat = new SimpleDateFormat("mm:ss.SS", Locale.US);
     //バイブレーション
     static private Vibrator vibrator;
+    static private WakeLock wakeLock;
     //アラーム
     private MediaPlayer alarm;
     //ライト関連
@@ -95,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
     private int db_sw_5 = 0;
     private int db_index_wr = 0;
 
+    private int _darkmode = 0;
+
     // Spinner
     private String[] spinnerItems_EN = {"HISTORY", "1:", "2:", "3:","4:","5:"};
     private String[] spinnerItems_JP = {"操作履歴", "1:", "2:", "3:","4:","5:"};
@@ -107,17 +126,20 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
     final int LV_MAX = 5;
 
     // リワード広告
-    private RewardedVideoAd mRewardedVideoAd;
-/*
+    public LoadAdError adError;
+    public RewardedAd rewardedAd;
+
+    /*
     // テストID
     private static final String AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
     // テストID(APPは本物でOK)
     private static final String APP_ID = "ca-app-pub-4924620089567925~4348547503";
-*/
-
+    */
+    //本番
     private static final String AD_UNIT_ID = "ca-app-pub-4924620089567925/2903641531";
     private static final String APP_ID = "ca-app-pub-4924620089567925~4348547503";
 
+    @SuppressLint("InvalidWakeLockTag")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,6 +154,11 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
         timerText = findViewById(R.id.timer);
         timerText.setText(dataFormat.format(0));
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        // PowerManagerサービスの取得
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+        // PARTIAL_WAKE_LOCKを使ってWakeLockを取得する（スクリーンがオフでもCPUを起動し続ける）
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
         alarm = MediaPlayer.create(this, R.raw.alarm);
 
         //カメラ初期化
@@ -149,9 +176,13 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
         now_volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
 
         //広告
-        mAdview = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdview.loadAd(adRequest);
+        MobileAds.initialize(this, initializationStatus -> {
+            // 初期化完了後に広告をロード
+            mAdview = findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdview.loadAd(adRequest);
+        });
+
 
         /* SeekBar */
         seek_volume = (SeekBar)findViewById(R.id.seekBar);
@@ -217,23 +248,55 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
             }
         });
 
-
-        // リワード広告
-        MobileAds.initialize(this, APP_ID);
-        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
-        mRewardedVideoAd.setRewardedVideoAdListener(this);
-        loadRewardedVideoAd();
+        //リワード広告
+        Rdloading();
     }
 
-    /*
-        リワード広告処理
-     */
-    private void loadRewardedVideoAd() {
-        mRewardedVideoAd.loadAd(AD_UNIT_ID,new AdRequest.Builder().build());
+    public void Rdloading(){
+        RewardedAd.load(this,
+                AD_UNIT_ID,
+//                "ca-app-pub-3940256099942544/5224354917",
+                new AdRequest.Builder().build(),
+                new RewardedAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(RewardedAd Ad) {
+                        rewardedAd = Ad;
+                        Context context = getApplicationContext();
+                        if (_language.equals("ja")) {
+                            Toast.makeText(context, "報酬動画準備OK !!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(context, "Movie OK !!", Toast.LENGTH_SHORT).show();
+                        }
+
+//                        Log.d("TAG", "The rewarded ad loaded.");
+                    }
+                    @Override
+                    public void onAdFailedToLoad(LoadAdError adError) {
+//                        Log.d("TAG", "The rewarded ad wasn't loaded yet.");
+                    }
+                });
     }
 
-    @Override
-    public void onRewarded(RewardItem reward) {
+    public void RdShow(){
+        if (rewardedAd != null) {
+            Activity activityContext = MainActivity.this;
+            rewardedAd.show(activityContext, new OnUserEarnedRewardListener() {
+                @Override
+                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+                    // Handle the reward.
+//                    Log.d("TAG", "The user earned the reward.");
+                    int rewardAmount = rewardItem.getAmount();
+                    String rewardType = rewardItem.getType();
+                    RdPresent();
+                }
+            });
+        } else {
+//            Log.d("TAG", "The rewarded ad wasn't ready yet.");
+        }
+    }
+
+    public void RdPresent(){
         // Reward the user.
         int tmp_level = db_level;
         db_level++;
@@ -249,44 +312,7 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
             Toast.makeText(this, "History UP!!：" + (tmp_level) + "  → " + (db_level), Toast.LENGTH_SHORT).show();
         }
         AppDBUpdated();
-    }
-
-    @Override
-    public void onRewardedVideoAdLeftApplication() {
-        /*
-        Toast.makeText(this, "onRewardedVideoAdLeftApplication",
-                Toast.LENGTH_SHORT).show();
-         */
-    }
-
-    @Override
-    public void onRewardedVideoAdClosed() {
-//        Toast.makeText(this, "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoAdFailedToLoad(int errorCode) {
-//        Toast.makeText(this, "onRewardedVideoAdFailedToLoad err="+errorCode, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoAdLoaded() {
-//        Toast.makeText(this, "onRewardedVideoAdLoaded", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoAdOpened() {
-//        Toast.makeText(this, "onRewardedVideoAdOpened", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoStarted() {
-//        Toast.makeText(this, "onRewardedVideoStarted", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onRewardedVideoCompleted() {
-//        Toast.makeText(this, "onRewardedVideoCompleted", Toast.LENGTH_SHORT).show();
+        Rdloading();
     }
 
 
@@ -312,14 +338,18 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
     public void onResume() {
         super.onResume();
         //動画
-        mRewardedVideoAd.resume(this);
+        //mRewardedVideoAd.resume(this);
+        // WakeLockを取得
+        wakeLock.acquire();
     }
     @Override
     public void onPause(){
         super.onPause();
         //  DB更新
         AppDBUpdated();
-        mRewardedVideoAd.pause(this);
+        //mRewardedVideoAd.pause(this);
+        // WakeLockを解放
+        wakeLock.release();
     }
     @Override
     public void onStop(){
@@ -346,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
         //  DB更新
         AppDBUpdated();
         //動画
-        mRewardedVideoAd.destroy(this);
+        //mRewardedVideoAd.destroy(this);
     }
 
     /*
@@ -358,6 +388,37 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
         Button btn_clear = (Button)findViewById(R.id.btn_clear);
         Button btn_set = (Button)findViewById(R.id.btn_set);
         Button btn_tips = (Button)findViewById(R.id.btn_tips);
+
+        /*
+        LinearLayout layout_0 = findViewById(R.id.linearLayout);
+        LinearLayout layout_1 = findViewById(R.id.linearLayout1);
+        LinearLayout layout_2 = findViewById(R.id.linearLayout2);
+        LinearLayout layout_3 = findViewById(R.id.linearLayout3);
+        LinearLayout layout_4 = findViewById(R.id.linearLayout4);
+        LinearLayout layout_10 = findViewById(R.id.linearLayout10);
+        LinearLayout layout_11 = findViewById(R.id.linearLayout11);
+
+        //ダークモードON
+        if (_darkmode == AppCompatDelegate.MODE_NIGHT_YES){
+            layout_0.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_1.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_2.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_3.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_4.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_10.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+            layout_11.setBackgroundColor(getResources().getColor(R.color.green_200_dark));
+        }
+        //OFF
+        else{
+            layout_0.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_1.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_2.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_3.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_4.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_10.setBackgroundColor(getResources().getColor(R.color.green_200));
+            layout_11.setBackgroundColor(getResources().getColor(R.color.green_200));
+        }
+        */
 
         /* 音量 */
         TextView t_volume = (TextView)findViewById(R.id.text_volume);
@@ -659,9 +720,13 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
                     onRewardedVideoStarted();
 
                      */
+                    /*
                     if (mRewardedVideoAd.isLoaded()) {
                         mRewardedVideoAd.show();
                     }
+
+                     */
+                    RdShow();
                 }
             });
             guide.setNegativeButton(btn_no, new DialogInterface.OnClickListener() {
@@ -762,6 +827,15 @@ public class MainActivity extends AppCompatActivity implements RewardedVideoAdLi
         if (is_set_vaib) {
             long vibratePattern[] = {300, 1000, 300, 1000};/* OFF→ON→OFF→ON*/
             vibrator.vibrate(vibratePattern, 1);
+
+            /* test_make */
+            /*
+                https://chat.openai.com/share/f405cb48-c3f6-4b3a-8c53-839b194e7ba3
+            */
+            //電源OFFでも強制的にバイブさせる方法（ChatGPTより）
+//            repeat = -1 が無限繰り返し、 =1にしているは正しくないかもです、　！！！！要確認です            
+//            VibrationEffect vibrationEffect = VibrationEffect.createWaveform(pattern, repeat);
+//            vibrator.vibrate(vibrationEffect);
         }
         //ライト
         if (is_set_light == true) {
