@@ -7,12 +7,15 @@ import androidx.appcompat.app.AppCompatDelegate;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 //タイマー関連
@@ -111,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
     private long db_time_5 = 0;
     private int db_sw_5 = 0;
     private int db_index_wr = 0;
+    private int db_data1 = 0;
 
     private int _darkmode = 0;
 
@@ -138,6 +142,11 @@ public class MainActivity extends AppCompatActivity {
     //本番
     private static final String AD_UNIT_ID = "ca-app-pub-4924620089567925/2903641531";
     private static final String APP_ID = "ca-app-pub-4924620089567925~4348547503";
+
+    //評価ポップアップ
+    private int ReviewCount = 1;
+    private int REVIEW_POP = 5; //評価ポップアップ
+
 
     @SuppressLint("InvalidWakeLockTag")
     @Override
@@ -333,6 +342,15 @@ public class MainActivity extends AppCompatActivity {
 
         //画面初期化
         DisplayScreen();
+
+        //評価ポップアップ処理
+        if (db_data1 <= REVIEW_POP){
+            if (ReviewCount != 0){
+                db_data1++;
+                ReviewCount = 0;
+            }
+        }
+        ShowRatingPopup();
     }
     @Override
     public void onResume() {
@@ -1067,6 +1085,7 @@ public class MainActivity extends AppCompatActivity {
                 db_time_5 = cursor.getInt(10);
                 db_sw_5 = cursor.getInt(11);
                 db_index_wr = cursor.getInt(12);
+                db_data1 =  cursor.getInt(13);
             }
         } finally {
             db.close();
@@ -1137,6 +1156,7 @@ public class MainActivity extends AppCompatActivity {
         insertValues.put("time_5", db_time_5);
         insertValues.put("sw_5", db_sw_5);
         insertValues.put("index_wr", db_index_wr);
+        insertValues.put("data1", db_data1);
         int ret;
         try {
             ret = db.update("appinfo", insertValues, null, null);
@@ -1153,4 +1173,100 @@ public class MainActivity extends AppCompatActivity {
         */
     }
 
+    private void ShowRatingPopup() {
+
+        String str_ttl = "";
+        String str_mess = "";
+        String str_btn_ok = "";
+        String str_btn_ng = "";
+
+        //アプリを起動して 7回目の時
+        if (db_data1 != REVIEW_POP){
+            return;
+        }
+        else {
+            db_data1++; //ポップアップを１回表示にするため、ここでカウントする
+        }
+        if (_language.equals("ja")) {
+            str_ttl = "★☆アプリ評価のお願い☆★";
+            str_mess = "\nいつもご利用ありがとうございます\n" +
+                    "\nたくさん利用して頂いている貴方にお願いです。アプリを評価してもらませんか？ 評価して頂けると励みになります。" +
+                    "\n\n(この通知は今回限りです)" +
+                    "\n\n\n";
+            str_btn_ok = "評価する";
+            str_btn_ng = "　後で　";
+        }else{
+            str_ttl = " Please rate the app ";
+            str_mess = "\nThank you for using it all the time.\n" +
+                    "\nThank you to all of you who are using it a lot. Would you like to rate the app? It would be encouraging if you would rate us." +
+                    "\n\n(This notification is only for this time)" +
+                    "\n\n\n";
+            str_btn_ok = "review";
+            str_btn_ng = "later";
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(str_ttl);
+        builder.setMessage(str_mess);
+        builder.setPositiveButton(str_btn_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                RedirectToPlayStoreForRating();
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton(str_btn_ng, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void ShowRatingPopupNG() {
+        String str_ttl = "";
+        String str_mess = "";
+        String str_btn = "";
+
+        if (_language.equals("ja")) {
+            str_ttl = "接続に失敗しました";
+            str_mess = "\n評価サイトへのアクセスに失敗しました\n" +
+                    "\n" +
+                    "\n\n" +
+                    "\n\n\n";
+            str_btn = "確認";
+        }
+        else{
+            str_ttl = "Connection Failed";
+            str_mess = "\nFailed to access Site.\n" +
+                    "\n" +
+                    "\n\n" +
+                    "\n\n\n";
+            str_btn = "OK";
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(str_ttl);
+        builder.setMessage(str_mess);
+        builder.setPositiveButton(str_btn, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void RedirectToPlayStoreForRating() {
+        try {
+            Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=" + getPackageName());
+            Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(goToMarket);
+        } catch (ActivityNotFoundException e) {
+            ShowRatingPopupNG();
+        }
+    }
 }

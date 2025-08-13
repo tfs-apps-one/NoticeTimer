@@ -4,14 +4,14 @@ plugins {
 
 android {
     namespace 'tfsapps.noticetimer'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "tfsapps.noticetimer"
         minSdk 26
-        targetSdk 34
-        versionCode 10
-        versionName "2.0"
+        targetSdk 35
+        versionCode 12
+        versionName "2.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
